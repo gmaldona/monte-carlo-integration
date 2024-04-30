@@ -1,0 +1,12 @@
+.idea/
+.vscode/
+
+cmake-build-debug/
+build/
+
+CMakeLists.txt
+
+*.out
+.out/
+
+**/integrate
