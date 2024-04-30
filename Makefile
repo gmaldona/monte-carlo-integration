@@ -1,9 +1,10 @@
-# Parallized Numerical Integral Computation for Binghamton University CS 547.
+# Parallelized Numerical Integral Computation for Binghamton University CS 547.
 # see: https://cs.binghamton.edu/~kchiu/cs447/assign/3/
 #
 # author: Gregory Maldonado
 # email : gmaldonado@cs.binghamton.edu
 # date  : 2024-04-30
+# web   : https://cs.binghamton.edu/~gmaldonado/
 #
 # Graduate student @ Thomas J. Watson College of Engineering and Applied
 # Sciences, Binghamton University.

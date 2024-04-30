@@ -1,5 +1,5 @@
 /*
- * Parallized Numerical Integral Computation for Binghamton University CS 547.
+ * Parallelized Numerical Integral Computation for Binghamton University CS 547.
  * see: https://cs.binghamton.edu/~kchiu/cs447/assign/3/
  *
  * author: Gregory Maldonado
@@ -11,32 +11,48 @@
  * Sciences, Binghamton University.
  */
 
-#include <cstdio>
 #include <iostream>
 #include <string>
 #include <thread>
 #include "integrate.hh"
 
+//==================================================================== 80 ====>>
+
 const double integrate(const double       lower_bound, 
                        const double       upper_bound,
                        const unsigned int samples,
                        const unsigned int threads) {
+
+   // https://stackoverflow.com/questions/2704521
+   std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+   std::default_random_engine re;
+
    return (threads > 1) ? 
-      mt_integrate(lower_bound, upper_bound, samples, threads) :
-      st_integrate(lower_bound, upper_bound, samples);
+      mt_integrate(lower_bound, upper_bound, samples, threads, unif, re) :
+      st_integrate(lower_bound, upper_bound, samples, unif, re);
+}
+
+const double st_integrate(const double       lower_bound,
+                          const double       upper_bound,
+                          const unsigned int samples,
+                          std::uniform_real_distribution<double>& unif,
+                          std::default_random_engine& re) {
+
+   double approximation = 0.0;
+   for (unsigned int sample = 0; sample < samples; ++sample) {
+      approximation += fnx(unif(re));
+   }
+
+   return approximation / samples;
 }
 
 const double mt_integrate(const double       lower_bound,
                           const double       upper_bound,
                           const unsigned int samples,
-                          const unsigned int threads) {
-   return 0.0;
-}
+                          const unsigned int threads,
+                          std::uniform_real_distribution<double>& unif,
+                          std::default_random_engine& re) {
 
-const double st_integrate(const double       lower_bound,
-                          const double       upper_bound,
-                          const unsigned int samples) {
-   return 0.0;
 }
 
 int main(int args, char** argv) {
@@ -49,6 +65,9 @@ int main(int args, char** argv) {
       return 1;
    }
 
+   // https://stackoverflow.com/questions/13445688
+   srand((unsigned) time(NULL));
+
    const double lower_bound   = std::stod(argv[1]);
    const double upper_bound   = std::stod(argv[2]);
    const unsigned int samples = std::stoi(argv[3]);
@@ -60,3 +79,5 @@ int main(int args, char** argv) {
                           samples,
                           threads);
 }
+
+//==================================================================== 80 ====>>

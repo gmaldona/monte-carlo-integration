@@ -1,5 +1,5 @@
 /*
- * Parallized Numerical Integral Computation for Binghamton University CS 547.
+ * Parallelized Numerical Integral Computation for Binghamton University CS 547.
  * see: https://cs.binghamton.edu/~kchiu/cs447/assign/3/
  *
  * author: Gregory Maldonado
@@ -11,12 +11,22 @@
  * Sciences, Binghamton University.
  */
 
+#include <random>
 #include <cmath>
 #include <stdint.h>
 #include <stddef.h>
 #include <functional>
 
 //==================================================================== 80 ====>>
+
+/**
+ * Function that will be integrated in this Monte Carlo Simulation.
+ * @param x
+ * @return y
+ */
+inline double fnx(const double x) {
+   return std::sin(x) / x;
+}
 
 /**
  * Entry point function for the integration calculator. Depending on number of
@@ -48,11 +58,15 @@ const double integrate(const double       lower_bound,
  * @param lower_bound Definite integral lower bound value
  * @param upper_bound Definite integral upper bound value
  * @param samples     Number of samples to in the Monte Carlo computation method
+ * @param unif        Random distribution for generating pseudo-random doubles
+ * @param re          Random number generation
  * @return An approximated integral value for the given function
  */
 const double st_integrate(const double       lower_bound, 
                           const double       upper_bound,
-                          const unsigned int samples);
+                          const unsigned int samples,
+                          std::uniform_real_distribution<double>& unif,
+                          std::default_random_engine& re);
 
 /**
  * Multi Threaded integration computation. Uses the Monte Carlo integration
@@ -64,10 +78,15 @@ const double st_integrate(const double       lower_bound,
  * @param upper_bound Definite integral upper bound value
  * @param samples     Number of samples to in the Monte Carlo computation method
  * @param threads     Number of threads to spawn to compute the simulation
+ * @param unif        Random distribution for generating pseudo-random doubles
+ * @param re          Random number generation
  * @return An approximated integral value for the given function
 */
 const double mt_integrate(const double       lower_bound, 
-                       const double       upper_bound,
-                       const unsigned int samples,
-                       const unsigned int threads);
-                    
+                          const double       upper_bound,
+                          const unsigned int samples,
+                          const unsigned int threads,
+                          std::uniform_real_distribution<double>& unif,
+                          std::default_random_engine& re);
+
+//==================================================================== 80 ====>>
