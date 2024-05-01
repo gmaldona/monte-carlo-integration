@@ -11,9 +11,13 @@
  * Sciences, Binghamton University.
  */
 
+#include <vector>
+#include <memory>
 #include <iostream>
 #include <string>
+#include <numeric>
 #include <thread>
+#include <functional>
 #include "integrate.hh"
 
 //==================================================================== 80 ====>>
@@ -24,7 +28,7 @@ const double integrate(const double       lower_bound,
                        const unsigned int threads) {
 
    // https://stackoverflow.com/questions/2704521
-   std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+   std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
    std::default_random_engine re;
 
    return (threads > 1) ? 
@@ -32,8 +36,8 @@ const double integrate(const double       lower_bound,
       st_integrate(lower_bound, upper_bound, samples, unif, re);
 }
 
-const double st_integrate(const double       lower_bound,
-                          const double       upper_bound,
+const double st_integrate(const double       /*lower_bound*/,
+                          const double       /*upper_bound*/,
                           const unsigned int samples,
                           std::uniform_real_distribution<double>& unif,
                           std::default_random_engine& re) {
@@ -53,6 +57,46 @@ const double mt_integrate(const double       lower_bound,
                           std::uniform_real_distribution<double>& unif,
                           std::default_random_engine& re) {
 
+   std::vector<double*> ret_values(threads);
+   std::vector<std::thread> thread_vec;
+
+   const unsigned int divided_samples = std::floor(samples / threads);
+
+   // TODO: ahh implementation.
+   auto computation = [&](const unsigned int samples,
+                                                      double* ret) {
+      double approximation = 0.0;
+      for (unsigned int sample = 0; sample < samples; ++sample) {
+         approximation += fnx(unif(re));
+      }
+      *ret = approximation;
+   };
+
+   for (unsigned int thread = 1; thread <= threads; ++thread) {
+      ret_values[thread] = new double();
+
+      if (thread == threads && samples % threads != 0) {
+         thread_vec.emplace_back(computation,
+                         divided_samples + samples % thread,
+                         ret_values[thread]);
+      } else {
+         thread_vec.emplace_back(computation,
+                         divided_samples,
+                         ret_values[thread]);
+      }
+   }
+
+   for (auto& thread : thread_vec) {
+      thread.join();
+   }
+
+   double approximation = 0.0;
+   for (auto& ret_value : ret_values) {
+      approximation += *ret_value;
+      delete ret_value;
+   }
+
+   return approximation / samples;
 }
 
 int main(int args, char** argv) {
