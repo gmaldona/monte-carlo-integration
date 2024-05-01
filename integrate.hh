@@ -13,16 +13,21 @@
 
 #include <random>
 #include <cmath>
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 #include <functional>
+#include <cstring>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <future>
+#include <chrono>
+#include <thread>
 
 //==================================================================== 80 ====>>
 
 /**
  * Function that will be integrated in this Monte Carlo Simulation.
- * @param x
- * @return y
  */
 inline double fnx(const double x) {
    return std::sin(x) / x;
@@ -55,8 +60,6 @@ double integrate(double       lower_bound,
  *
  * See #integrate for the function that will be integrated.
  *
- * @param lower_bound Definite integral lower bound value
- * @param upper_bound Definite integral upper bound value
  * @param samples     Number of samples to in the Monte Carlo computation method
  * @param unif        Random distribution for generating pseudo-random doubles
  * @param re          Random number generation
@@ -72,17 +75,15 @@ double st_integrate(unsigned int samples,
  *
  * See #integrate for the function that will be integrated.
  *
- * @param lower_bound Definite integral lower bound value
- * @param upper_bound Definite integral upper bound value
  * @param samples     Number of samples to in the Monte Carlo computation method
- * @param threads     Number of threads to spawn to compute the simulation
  * @param unif        Random distribution for generating pseudo-random doubles
  * @param re          Random number generation
+ * @param threads     Number of threads to spawn to compute the simulation
  * @return An approximated integral value for the given function
 */
 double mt_integrate(unsigned int samples,
-                    unsigned int threads,
                     std::uniform_real_distribution<double>& unif,
-                    std::default_random_engine& re);
+                    std::default_random_engine& re,
+                    unsigned int threads);
 
 //==================================================================== 80 ====>>

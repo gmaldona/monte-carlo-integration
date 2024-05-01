@@ -21,7 +21,7 @@ stamp=$(date +"%y%m%dT%T")
 #SBATCH --output="integrate-$stamp.out"
 #SBATCH --time=00:05:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=16
 #SBATCH --mem-per-cpu=500
 
 if [ -e $(pwd)/build/integrate ]; then

@@ -11,13 +11,6 @@
  * Sciences, Binghamton University.
  */
 
-#include <cstring>
-#include <vector>
-#include <iostream>
-#include <string>
-#include <future>
-#include <chrono>
-#include <thread>
 #include "integrate.hh"
 
 using namespace std::chrono;
@@ -33,9 +26,8 @@ double integrate(double       lower_bound,
    std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
    std::default_random_engine re;
 
-   return (threads > 1) ? 
-      mt_integrate(samples, threads, unif, re) :
-      st_integrate(samples, unif, re);
+   return (threads > 1) ? mt_integrate(samples, unif, re, threads) :
+                          st_integrate(samples, unif, re);
 }
 
 double st_integrate(unsigned int samples,
@@ -46,19 +38,16 @@ double st_integrate(unsigned int samples,
    for (unsigned int sample = 0; sample < samples; ++sample) {
       approximation += fnx(unif(re));
    }
-
    return approximation / samples;
 }
 
 double mt_integrate(unsigned int samples,
-                    unsigned int threads,
                     std::uniform_real_distribution<double>& unif,
-                    std::default_random_engine& re) {
-
-   std::vector<std::future<double>> future_vec;
+                    std::default_random_engine& re,
+                    unsigned int threads) {
 
    const unsigned int divided_samples = std::floor(samples / threads);
-
+   std::vector<std::future<double>> future_vec;
    auto computation = [&](const unsigned int samples) {
       double approximation = 0.0;
       for (unsigned int sample = 0; sample < samples; ++sample) {
@@ -73,48 +62,38 @@ double mt_integrate(unsigned int samples,
             std::async(computation,divided_samples + samples % thread)
          );
       } else {
-         future_vec.push_back(
-            std::async(computation,divided_samples)
-         );
+         future_vec.push_back(std::async(computation,divided_samples));
       }
    }
 
    double approximation = 0.0;
-   for (auto& future : future_vec) {
-      approximation += future.get();
-   }
-
+   for (auto& future : future_vec) { approximation += future.get(); }
    return approximation / samples;
 }
 
 int main(int args, char** argv) {
-   
+
    if (args != 5) {
-      std::cout << "Expected arguments:" << std::endl;
-      std::cout <<
-      "lower_bound(Double) upper_bound(Double) samples(uint) threads(uint)" <<
-      std::endl;
+      std::cout << "Expected arguments:" << std::endl << 
+      "lower_bound(d) upper_bound(d) samples(uint) threads(uint)" << std::endl;
       return 1;
    }
 
    // https://stackoverflow.com/questions/13445688
    srand((unsigned) time(NULL));
-
    const double lower_bound   = std::stod(argv[1]);
    const double upper_bound   = std::stod(argv[2]);
    const unsigned int samples = std::stol(argv[3]);
    const unsigned int threads = (strcmp(argv[4], "MAX") == 0) ?
       std::thread::hardware_concurrency() : std::stoi(argv[4]);
 
-   // https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
-   auto start = high_resolution_clock::now();
-   std::cout << integrate(lower_bound,
-                          upper_bound,
-                          samples,
+   auto start    = high_resolution_clock::now();
+   std::cout << integrate(lower_bound, 
+                          upper_bound, 
+                          samples, 
                           threads) << std::endl;
-   auto stop = high_resolution_clock::now();
+   auto stop     = high_resolution_clock::now();
    auto duration = duration_cast<microseconds>(stop - start);
-   std::cerr << "total time: " << duration.count() << " microseconds" << std::endl;
+   std::cerr << "time: " << duration.count() << " microseconds" << std::endl;
 }
-
 //==================================================================== 80 ====>>
