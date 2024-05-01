@@ -15,9 +15,8 @@
 #include <memory>
 #include <iostream>
 #include <string>
-#include <numeric>
+#include <future>
 #include <thread>
-#include <functional>
 #include "integrate.hh"
 
 //==================================================================== 80 ====>>
@@ -57,43 +56,35 @@ const double mt_integrate(const double       lower_bound,
                           std::uniform_real_distribution<double>& unif,
                           std::default_random_engine& re) {
 
-   std::vector<double*> ret_values(threads);
-   std::vector<std::thread> thread_vec;
+   std::vector<std::future<double>> future_vec;
 
    const unsigned int divided_samples = std::floor(samples / threads);
 
    // TODO: ahh implementation.
-   auto computation = [&](const unsigned int samples,
-                                                      double* ret) {
+   auto computation = [&](const unsigned int samples) {
       double approximation = 0.0;
       for (unsigned int sample = 0; sample < samples; ++sample) {
          approximation += fnx(unif(re));
       }
-      *ret = approximation;
+      return approximation;
    };
 
    for (unsigned int thread = 1; thread <= threads; ++thread) {
-      ret_values[thread] = new double();
 
       if (thread == threads && samples % threads != 0) {
-         thread_vec.emplace_back(computation,
-                         divided_samples + samples % thread,
-                         ret_values[thread]);
+         future_vec.push_back(
+            std::async(computation,divided_samples + samples % thread)
+         );
       } else {
-         thread_vec.emplace_back(computation,
-                         divided_samples,
-                         ret_values[thread]);
+         future_vec.push_back(
+            std::async(computation,divided_samples)
+         );
       }
    }
 
-   for (auto& thread : thread_vec) {
-      thread.join();
-   }
-
    double approximation = 0.0;
-   for (auto& ret_value : ret_values) {
-      approximation += *ret_value;
-      delete ret_value;
+   for (auto& future : future_vec) {
+      approximation += future.get();
    }
 
    return approximation / samples;
