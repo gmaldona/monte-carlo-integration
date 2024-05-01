@@ -14,7 +14,6 @@
 # hpc.srun.sh -
 # utility script for running this computation in SLURM workload (srun).
 
-git_root=$(git worktree list | cut -d' ' -f1)
 stamp=$(date +"%y%m%dT%T")
 
 #SBATCH -A gmaldonado
@@ -25,6 +24,6 @@ stamp=$(date +"%y%m%dT%T")
 #SBATCH --cpus-per-task=32
 #SBATCH --mem-per-cpu=500
 
-if [ -e "$git_root"/build/integrate ]; then
-  srun "$git_root"/build/integrate $@
+if [ -e $(pwd)/build/integrate ]; then
+  srun $(pwd)/build/integrate $@
 fi
