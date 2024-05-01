@@ -24,7 +24,7 @@ $(TARGET): $(TARGET).o
 	$(CC) $(CFLAGS) -o build/$(TARGET) $(TARGET).cc -pthread -lstdc++
 
 $(TARGET).o: .pre $(TARGET).cc $(TARGET).hh
-	$(CC) $(CFLAGS) -c $(TARGET).cc -pthread -lstdc++
+	$(CC) $(CFLAGS) $(TARGET).cc -pthread -lstdc++
 
 .post:
 	chmod +x build/$(TARGET)

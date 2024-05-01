@@ -16,30 +16,31 @@
 #include <iostream>
 #include <string>
 #include <future>
+#include <chrono>
 #include <thread>
 #include "integrate.hh"
 
+using namespace std::chrono;
+
 //==================================================================== 80 ====>>
 
-const double integrate(const double       lower_bound, 
-                       const double       upper_bound,
-                       const unsigned int samples,
-                       const unsigned int threads) {
+double integrate(double       lower_bound,
+                 double       upper_bound,
+                 unsigned int samples,
+                 unsigned int threads) {
 
    // https://stackoverflow.com/questions/2704521
    std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
    std::default_random_engine re;
 
    return (threads > 1) ? 
-      mt_integrate(lower_bound, upper_bound, samples, threads, unif, re) :
-      st_integrate(lower_bound, upper_bound, samples, unif, re);
+      mt_integrate(samples, threads, unif, re) :
+      st_integrate(samples, unif, re);
 }
 
-const double st_integrate(const double       /*lower_bound*/,
-                          const double       /*upper_bound*/,
-                          const unsigned int samples,
-                          std::uniform_real_distribution<double>& unif,
-                          std::default_random_engine& re) {
+double st_integrate(unsigned int samples,
+                    std::uniform_real_distribution<double>& unif,
+                    std::default_random_engine& re) {
 
    double approximation = 0.0;
    for (unsigned int sample = 0; sample < samples; ++sample) {
@@ -49,12 +50,10 @@ const double st_integrate(const double       /*lower_bound*/,
    return approximation / samples;
 }
 
-const double mt_integrate(const double       lower_bound,
-                          const double       upper_bound,
-                          const unsigned int samples,
-                          const unsigned int threads,
-                          std::uniform_real_distribution<double>& unif,
-                          std::default_random_engine& re) {
+double mt_integrate(unsigned int samples,
+                    unsigned int threads,
+                    std::uniform_real_distribution<double>& unif,
+                    std::default_random_engine& re) {
 
    std::vector<std::future<double>> future_vec;
 
@@ -105,14 +104,19 @@ int main(int args, char** argv) {
 
    const double lower_bound   = std::stod(argv[1]);
    const double upper_bound   = std::stod(argv[2]);
-   const unsigned int samples = std::stoi(argv[3]);
+   const unsigned int samples = std::stol(argv[3]);
    const unsigned int threads = (strcmp(argv[4], "MAX") == 0) ?
       std::thread::hardware_concurrency() : std::stoi(argv[4]);
 
+   // https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
+   auto start = high_resolution_clock::now();
    std::cout << integrate(lower_bound,
                           upper_bound,
                           samples,
-                          threads);
+                          threads) << std::endl;
+   auto stop = high_resolution_clock::now();
+   auto duration = duration_cast<microseconds>(stop - start);
+   std::cerr << "total time: " << duration.count() << " microseconds" << std::endl;
 }
 
 //==================================================================== 80 ====>>

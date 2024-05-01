@@ -44,10 +44,10 @@ inline double fnx(const double x) {
  * @param threads     Number of threads to spawn to compute the simulation
  * @return An approximated integral value for the given function
  */
-const double integrate(const double       lower_bound, 
-                       const double       upper_bound,
-                       const unsigned int samples,
-                       const unsigned int threads);
+double integrate(double       lower_bound,
+                 double       upper_bound,
+                 unsigned int samples,
+                 unsigned int threads);
 
 /**
  * Single Threaded integration computation. Uses the Monte Carlo integration
@@ -62,11 +62,9 @@ const double integrate(const double       lower_bound,
  * @param re          Random number generation
  * @return An approximated integral value for the given function
  */
-const double st_integrate(const double       lower_bound, 
-                          const double       upper_bound,
-                          const unsigned int samples,
-                          std::uniform_real_distribution<double>& unif,
-                          std::default_random_engine& re);
+double st_integrate(unsigned int samples,
+                    std::uniform_real_distribution<double>& unif,
+                    std::default_random_engine& re);
 
 /**
  * Multi Threaded integration computation. Uses the Monte Carlo integration
@@ -82,11 +80,9 @@ const double st_integrate(const double       lower_bound,
  * @param re          Random number generation
  * @return An approximated integral value for the given function
 */
-const double mt_integrate(const double       lower_bound, 
-                          const double       upper_bound,
-                          const unsigned int samples,
-                          const unsigned int threads,
-                          std::uniform_real_distribution<double>& unif,
-                          std::default_random_engine& re);
+double mt_integrate(unsigned int samples,
+                    unsigned int threads,
+                    std::uniform_real_distribution<double>& unif,
+                    std::default_random_engine& re);
 
 //==================================================================== 80 ====>>
