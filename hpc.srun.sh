@@ -26,5 +26,5 @@ stamp=$(date +"%y%m%dT%T")
 #SBATCH --mem-per-cpu=500
 
 if [ -e "$git_root"/build/integrate ]; then
-  srun $(pwd)/build/1brc $@
+  srun "$git_root"/build/integrate $@
 fi
