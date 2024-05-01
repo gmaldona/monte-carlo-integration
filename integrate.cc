@@ -11,8 +11,8 @@
  * Sciences, Binghamton University.
  */
 
+#include <cstring>
 #include <vector>
-#include <memory>
 #include <iostream>
 #include <string>
 #include <future>
@@ -59,7 +59,6 @@ double mt_integrate(unsigned int samples,
 
    const unsigned int divided_samples = std::floor(samples / threads);
 
-   // TODO: ahh implementation.
    auto computation = [&](const unsigned int samples) {
       double approximation = 0.0;
       for (unsigned int sample = 0; sample < samples; ++sample) {
@@ -69,7 +68,6 @@ double mt_integrate(unsigned int samples,
    };
 
    for (unsigned int thread = 1; thread <= threads; ++thread) {
-
       if (thread == threads && samples % threads != 0) {
          future_vec.push_back(
             std::async(computation,divided_samples + samples % thread)
