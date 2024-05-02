@@ -94,6 +94,6 @@ int main(int args, char** argv) {
                           threads) << std::endl;
    auto stop     = high_resolution_clock::now();
    auto duration = duration_cast<milliseconds>(stop - start);
-   std::cerr << "time: " << duration.count() << " microseconds" << std::endl;
+   std::cerr << "time: " << duration.count() << " ms" << std::endl;
 }
 //==================================================================== 80 ====>>
