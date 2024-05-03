@@ -60,14 +60,14 @@ double integrate(double       lower_bound,
  *
  * See #integrate for the function that will be integrated.
  *
+ * @param lower_bound Lower bound value of the definite integral
+ * @param upper_bound Upper bound value of the definite integral
  * @param samples     Number of samples to in the Monte Carlo computation method
- * @param unif        Random distribution for generating pseudo-random doubles
- * @param re          Random number generation
  * @return An approximated integral value for the given function
  */
-double st_integrate(unsigned int samples,
-                    std::uniform_real_distribution<double>& unif,
-                    std::default_random_engine& re);
+double st_integrate(double       lower_bound,
+                    double       upper_bound,
+                    unsigned int samples);
 
 /**
  * Multi Threaded integration computation. Uses the Monte Carlo integration
@@ -75,15 +75,15 @@ double st_integrate(unsigned int samples,
  *
  * See #integrate for the function that will be integrated.
  *
+ * @param lower_bound Lower bound value of the definite integral
+ * @param upper_bound Upper bound value of the definite integral
  * @param samples     Number of samples to in the Monte Carlo computation method
- * @param unif        Random distribution for generating pseudo-random doubles
- * @param re          Random number generation
  * @param threads     Number of threads to spawn to compute the simulation
  * @return An approximated integral value for the given function
 */
-double mt_integrate(unsigned int samples,
-                    std::uniform_real_distribution<double>& unif,
-                    std::default_random_engine& re,
+double mt_integrate(double       lower_bound,
+                    double       upper_bound,
+                    unsigned int samples,
                     unsigned int threads);
 
 //==================================================================== 80 ====>>

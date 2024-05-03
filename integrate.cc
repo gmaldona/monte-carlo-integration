@@ -22,18 +22,18 @@ double integrate(double       lower_bound,
                  unsigned int samples,
                  unsigned int threads) {
 
-   // https://stackoverflow.com/questions/2704521
-   std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
-   std::default_random_engine re;
-
    return (threads > 1) ?
-      mt_integrate(samples, unif, re, threads) :
-      st_integrate(samples, unif, re);
+      mt_integrate(lower_bound, upper_bound, samples, threads) :
+      st_integrate(lower_bound, upper_bound, samples);
 }
 
-double st_integrate(unsigned int samples,
-                    std::uniform_real_distribution<double>& unif,
-                    std::default_random_engine& re) {
+double st_integrate(double       lower_bound,
+                    double       upper_bound,
+                    unsigned int samples) {
+
+   srand((unsigned) time(NULL));
+   std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
+   std::default_random_engine re;
 
    double approximation = 0.0;
    for (unsigned int sample = 0; sample < samples; ++sample) {
@@ -42,15 +42,20 @@ double st_integrate(unsigned int samples,
    return approximation / samples;
 }
 
-double mt_integrate(unsigned int samples,
-                    std::uniform_real_distribution<double>& unif,
-                    std::default_random_engine& re,
+double mt_integrate(double       lower_bound,
+                    double       upper_bound,
+                    unsigned int samples,
                     unsigned int threads) {
 
    const unsigned int divided_samples = std::floor(samples / threads);
    std::vector<std::future<double>> future_vec;
    auto computation = [&](const unsigned int samples) {
+
+      std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
+      std::default_random_engine re;
+
       double approximation = 0.0;
+
       for (unsigned int sample = 0; sample < samples; ++sample) {
          approximation += fnx(unif(re));
       }
@@ -58,11 +63,13 @@ double mt_integrate(unsigned int samples,
    };
 
    for (unsigned int thread = 1; thread < threads; ++thread) {
+      srand((unsigned) thread);
       future_vec.push_back(
          std::async(std::launch::async, computation, divided_samples)
       );
    }
 
+   srand((unsigned) time(NULL));
    double approximation = computation(divided_samples + samples % threads);
    for (auto& future : future_vec) {
       approximation += future.get();
@@ -79,8 +86,6 @@ int main(int args, char** argv) {
       return 1;
    }
 
-   // https://stackoverflow.com/questions/13445688
-   srand((unsigned) time(NULL));
    const double lower_bound   = std::stod(argv[1]);
    const double upper_bound   = std::stod(argv[2]);
    const unsigned int samples = std::stol(argv[3]);
