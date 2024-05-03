@@ -30,4 +30,4 @@ $(TARGET).o: .pre $(TARGET).cc $(TARGET).hh
 	chmod +x build/$(TARGET)
 
 clean:
-	$(RM) build/$(TARGET) *.out
+	$(RM) build/ *.out
