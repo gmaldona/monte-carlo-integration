@@ -26,8 +26,9 @@ double integrate(double       lower_bound,
    std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
    std::default_random_engine re;
 
-   return (threads > 1) ? mt_integrate(samples, unif, re, threads) :
-          st_integrate(samples, unif, re);
+   return (threads > 1) ?
+      mt_integrate(samples, unif, re, threads) :
+      st_integrate(samples, unif, re);
 }
 
 double st_integrate(unsigned int samples,
@@ -48,6 +49,7 @@ double mt_integrate(unsigned int samples,
 
    const unsigned int divided_samples = std::floor(samples / threads);
    std::vector<std::future<double>> future_vec;
+   
    auto computation = [&](const unsigned int samples) {
       double approximation = 0.0;
       for (unsigned int sample = 0; sample < samples; ++sample) {
@@ -70,8 +72,9 @@ double mt_integrate(unsigned int samples,
 int main(int args, char** argv) {
 
    if (args != 5) {
-      std::cout << "Expected arguments:" << std::endl <<
-                "lower_bound(d) upper_bound(d) samples(uint) threads(uint)" << std::endl;
+      std::cout << "Expected arguments:"           << std::endl
+                << "lower_bound(d) upper_bound(d)" 
+                << "samples(uint) threads(uint)"   << std::endl;
       return 1;
    }
 
@@ -81,10 +84,11 @@ int main(int args, char** argv) {
    const double upper_bound   = std::stod(argv[2]);
    const unsigned int samples = std::stol(argv[3]);
    const unsigned int threads = (strcmp(argv[4], "MAX") == 0) ?
-                                std::thread::hardware_concurrency() : std::stoi(argv[4]);
+                                 std::thread::hardware_concurrency() :
+                                 std::stoi(argv[4]);
 
    auto start    = high_resolution_clock::now();
-   std::cout << integrate(lower_bound,
+   std::cout  << integrate(lower_bound,
                           upper_bound,
                           samples,
                           threads) << std::endl;
