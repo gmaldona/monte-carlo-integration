@@ -49,7 +49,6 @@ double mt_integrate(unsigned int samples,
 
    const unsigned int divided_samples = std::floor(samples / threads);
    std::vector<std::future<double>> future_vec;
-   
    auto computation = [&](const unsigned int samples) {
       double approximation = 0.0;
       for (unsigned int sample = 0; sample < samples; ++sample) {
@@ -59,7 +58,9 @@ double mt_integrate(unsigned int samples,
    };
 
    for (unsigned int thread = 1; thread < threads; ++thread) {
-      future_vec.push_back(std::async(computation,divided_samples));
+      future_vec.push_back(
+         std::async(std::launch::async, computation, divided_samples)
+      );
    }
 
    double approximation = computation(divided_samples + samples % threads);
