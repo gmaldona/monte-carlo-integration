@@ -25,5 +25,5 @@ stamp=$(date +"%y%m%dT%T")
 #SBATCH --mem-per-cpu=500
 
 if [ -e $(pwd)/build/integrate ]; then
-  srun $(pwd)/build/integrate $@
+   $(pwd)/build/integrate $@
 fi
